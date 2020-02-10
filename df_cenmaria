@@ -1,0 +1,26 @@
+FROM centos:latest
+LABEL mantainer="fabrizio iannucci < fabrizio [at] wicome {dot} com>"
+LABEL description="Centos web server con supporto php python3 wsgi postgres e mysql"
+WORKDIR /HOME
+USER root
+RUN yum install --nogpgcheck -y  epel-release  https://rpms.remirepo.net/enterprise/remi-release-7.rpm
+RUN yum update -y && yum install openssl yum-utils -y
+RUN yum-config-manager --enable remi-php71  -y
+RUN yum -y install httpd httpd-tools php php-common php-pgsql php-mcrypt php-pear php-cli php-pecl-memcache php-pecl-memcached php-pecl-apcu php-gd php-mbstring php-xml php-ldap php-mysql php-zip unzip
+RUN yum -y  install mod_ssl mod_php less php-PHPMailer sendmail mod_wsgi python36 python36-tools python36-devel gcc mariadb-devel
+RUN ln -s /usr/bin/python3.6 /usr/bin/python3
+RUN curl https://bootstrap.pypa.io/get-pip.py | python3
+RUN pip3 install mysqlclient
+RUN rm /etc/localtime; ln -s  /usr/share/zoneinfo/Europe/Rome /etc/localtime
+
+VOLUME ["/var/www/html", "/etc/httpd/conf.d","/var/www/storage","/etc/pki"]
+
+
+
+#EXPOSE 80
+EXPOSE 443
+EXPOSE 8080
+
+CMD ["/usr/sbin/httpd",  "-D", "FOREGROUND"]
+
+# docker run -dit -p 80:80 -p 443:443 -p 8080:8080 -v vhtml:/var/www/html -v /var/log/newmule:/var/log -v vhttpconf:/etc/httpd/conf.d cenphp
